@@ -2,11 +2,6 @@ var db = require("../config/ConnectDB");
 
 const productSchema = new db.mongoose.Schema(
   {
-    // store_id: {
-    //   type: db.mongoose.Schema.Types.ObjectId,
-    //   ref: "store",
-    //   required: true,
-    // },
     category_id: {
       type: db.mongoose.Schema.Types.ObjectId,
       ref: "category",
