@@ -9,6 +9,7 @@ var siteRouter = require("./routers/site.route"); // Kiểm tra xem siteRouter �
 var userRouter = require("./routers/account.route");
 var infoRoute = require("./routers/info.route");
 var productsRouter = require("./routers/products.route");
+var bannerRoute = require("./routers/banner.route");
 var notifiRoute = require("./routers/notification.route");
 
 var app = express();
@@ -30,6 +31,7 @@ app.use("/api", siteRouter); // Đảm bảo rằng siteRouter đã được đ�
 app.use("/api/user", userRouter);
 app.use("/api/info", infoRoute);
 app.use("/api/products", productsRouter);
+app.use("/api/banner", bannerRoute);
 app.use("/api/notifi", notifiRoute);
 
 // Catch 404 and forward to error handler
