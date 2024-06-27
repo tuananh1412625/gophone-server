@@ -5,12 +5,19 @@ var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var cors = require("cors");
 
-var siteRouter = require("./routers/site.route"); // Kiểm tra xem siteRouter đã được định nghĩa chưa
-var userRouter = require("./routers/account.route");
-var infoRoute = require("./routers/info.route");
+var siteRouter = require("./routers/site.route");
 var productsRouter = require("./routers/products.route");
+var categoryRouter = require("./routers/category.route");
+var reviewRoute = require("./routers/productRate.route");
+var userRouter = require("./routers/account.route");
+var orderRoute = require("./routers/order.route");
+var cartRoute = require("./routers/cart.route");
+var infoRoute = require("./routers/info.route");
 var bannerRoute = require("./routers/banner.route");
+var storeRoute = require("./routers/store.route");
+var messageRoute = require("./routers/message.route");
 var notifiRoute = require("./routers/notification.route");
+var statisticalRoute = require('./routers/statistical.route'); 
 
 var app = express();
 
@@ -27,12 +34,21 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
 // Routes
-app.use("/api", siteRouter); // Đảm bảo rằng siteRouter đã được định nghĩa và xuất ra từ file site.route.js
-app.use("/api/user", userRouter);
-app.use("/api/info", infoRoute);
+app.use("/api", siteRouter);
+app.use("/api/category", categoryRouter);
 app.use("/api/products", productsRouter);
+app.use("/api/user", userRouter);
+app.use("/api/store", storeRoute);
+app.use("/api/review", reviewRoute);
+app.use("/api/order", orderRoute);
+app.use("/api/cart", cartRoute);
+app.use("/api/info", infoRoute);
 app.use("/api/banner", bannerRoute);
-app.use("/api/notifi", notifiRoute);
+app.use('/api/message',messageRoute);
+app.use('/api/notifi',notifiRoute);
+app.use('/api/statistical', statisticalRoute);
+var yeuthichRoute = require("./routers/yeuthich.route");
+app.use('/api/yeuthich', yeuthichRoute);
 
 // Catch 404 and forward to error handler
 app.use(function (req, res, next) {
