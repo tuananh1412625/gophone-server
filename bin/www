@@ -8,7 +8,6 @@ var app = require("../app");
 var debug = require("debug")("md-04-fmarket-backend:server");
 var http = require("http");
 var socketIo = require('socket.io');
-const messageCtrl = require('../controllers/message.controller');
 const productRate = require('../controllers/productRate.controller');
 const notifiCtrl = require('../controllers/notification.controller');
 

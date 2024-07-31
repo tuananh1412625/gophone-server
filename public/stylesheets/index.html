@@ -1,0 +1,168 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Chat</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body {
+            display: flex;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        #userList {
+            width: 250px;
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-right: 1px solid #ddd;
+            overflow-y: auto;
+        }
+
+        #chatContainer {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+
+        #messages {
+            flex: 1;
+            overflow-y: auto;
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        #messageInput {
+            width: calc(100% - 100px);
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        #sendButton {
+            width: 80px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        #sendButton:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <ul id="userList"></ul>
+
+    <div id="chatContainer">
+        <ul id="messages"></ul>
+        <div>
+            <input type="text" id="messageInput" placeholder="Enter your message">
+            <button id="sendButton">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const messages = document.getElementById('messages');
+        const userList = document.getElementById('userList');
+        let currentUser = null;
+
+        // Gửi tin nhắn khi nhấn nút Send
+        sendButton.addEventListener('click', () => {
+            const message = messageInput.value;
+            if (message.trim() === '' || !currentUser) return;
+
+            fetch('/api/messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ user: 'Admin', message, recipient: currentUser }) // Thêm recipient
+            })
+            .then(response => response.json())
+            .then(data => {
+                messageInput.value = ''; // Chỉ reset input, không cần hiển thị tin nhắn ở đây
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        socket.on('newMessage', (message) => {
+            if (message.recipient === currentUser || message.user === currentUser) {
+                displayMessage(message);
+            }
+        });
+
+        // Nhận thông báo người dùng mới từ server và hiển thị trên giao diện
+        socket.on('newUser', (user) => {
+            if (!userExists(user.username)) {
+                addUserToList(user);
+            }
+        });
+
+        // Tải danh sách người dùng từ API
+        fetch('/api/users')
+            .then(response => response.json())
+            .then(users => {
+                users.forEach(user => {
+                    if (!userExists(user.username)) {
+                        addUserToList(user);
+                    }
+                });
+            })
+            .catch(error => console.error('Error fetching users:', error));
+
+        // Thêm người dùng vào danh sách
+        function addUserToList(user) {
+            const li = document.createElement('li');
+            li.textContent = user.username;
+            li.addEventListener('click', () => {
+                currentUser = user.username;
+                fetchMessagesForUser(currentUser);
+            });
+            userList.appendChild(li);
+        }
+
+        // Kiểm tra xem user đã tồn tại trong danh sách chưa
+        function userExists(username) {
+            const users = Array.from(userList.children);
+            return users.some(li => li.textContent === username);
+        }
+
+        // Hiển thị tin nhắn trên giao diện
+        function displayMessage(message) {
+            const li = document.createElement('li');
+            li.textContent = `${message.user}: ${message.message}`;
+            messages.appendChild(li);
+        }
+
+        // Lấy lịch sử chat của người dùng và admin
+        function fetchMessagesForUser(username) {
+            fetch(`/api/messages/${username}`)
+                .then(response => response.json())
+                .then(userMessages => {
+                    messages.innerHTML = ''; // Xóa các tin nhắn cũ
+                    userMessages.forEach(message => displayMessage(message));
+                })
+                .catch(error => console.error('Error fetching messages:', error));
+        }
+    </script>
+</body>
+</html>
+
+
+<!-- nh -->

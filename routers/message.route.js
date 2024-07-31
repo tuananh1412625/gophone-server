@@ -1,10 +1,12 @@
+const express = require('express');
+const messageController = require('../controllers/messageController');
 
-var express = require("express");
-var router = express.Router();
-var controller = require("../controllers/message.controller");
-var middleware = require("../middleware/auth.middleware");
+module.exports = (io) => {
+    const router = express.Router();
 
-router.get("/get-people-msg-list/:userId", controller.getPeopleMessageList);
-router.get("/get-msg-list", controller.getMessageList);
+    router.post('/messages', (req, res) => messageController.createMessage(req, res, io));
+    router.get('/messages', messageController.getAllMessages);
+    router.get('/messages/:username', messageController.getMessagesBetweenUserAndAdmin); // Thêm route mới
 
-module.exports = router;
+    return router;
+};
