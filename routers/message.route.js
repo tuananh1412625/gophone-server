@@ -1,12 +1,34 @@
 const express = require('express');
-const messageController = require('../controllers/messageController');
+const router = express.Router();
+const Message = require('../models/Message');
 
-module.exports = (io) => {
-    const router = express.Router();
+// Send a message
+router.post('/send', async (req, res) => {
+  try {
+    const { senderId, recipientId, content } = req.body;
+    if (!senderId || !recipientId || !content) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
 
-    router.post('/messages', (req, res) => messageController.createMessage(req, res, io));
-    router.get('/messages', messageController.getAllMessages);
-    router.get('/messages/:username', messageController.getMessagesBetweenUserAndAdmin); // Thêm route mới
+    const message = new Message({ sender: senderId, recipient: recipientId, content });
+    await message.save();
 
-    return router;
-};
+    res.status(201).json({ message: 'Message sent successfully', data: message });
+  } catch (err) {
+    res.status(500).json({ message: 'Internal Server Error', error: err });
+  }
+});
+
+// Get messages for a specific recipient
+router.get('/for/:recipientId', async (req, res) => {
+  try {
+    const { recipientId } = req.params;
+    const messages = await Message.find({ recipient: recipientId }).populate('sender');
+
+    res.status(200).json({ data: messages });
+  } catch (err) {
+    res.status(500).json({ message: 'Internal Server Error', error: err });
+  }
+});
+
+module.exports = router;

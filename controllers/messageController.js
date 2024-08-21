@@ -1,50 +1,29 @@
-const express = require('express');
-const app = express();
 const Message = require('../models/Message');
 
-// Middleware để xử lý JSON
-app.use(express.json());
 
-// Tạo một tin nhắn mới
-app.post('/api/messagessend', async (req, res) => {
-    try {
-        const { account, message, recipient } = req.body;
-        if (!account || !message || !recipient) {
-            return res.status(400).json({ error: 'Account, message, and recipient are required.' });
-        }
-        const newMessage = new Message({ account, message, recipient });
-        await newMessage.save();
-        res.status(201).json(newMessage);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+exports.sendMessage = async (req, res) => {
+  try {
+    const { senderId, recipientId, content } = req.body;
+    if (!senderId || !recipientId || !content) {
+      return res.status(400).json({ message: 'All fields are required' });
     }
-});
 
-// Lấy tất cả tin nhắn
-app.get('/api/messages', async (req, res) => {
-    try {
-        const messages = await Message.find();
-        res.status(200).json(messages);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
+    const message = new Message({ sender: senderId, recipient: recipientId, content });
+    await message.save();
 
-// Lấy tin nhắn giữa user và admin
-app.get('/api/messages/:username', async (req, res) => {
-    try {
-        const { username } = req.params;
-        if (!username) {
-            return res.status(400).json({ error: 'Username is required.' });
-        }
-        const messages = await Message.find({
-            $or: [
-                { account: username, recipient: 'Admin' },
-                { account: 'Admin', recipient: username }
-            ]
-        }).sort('timestamp');
-        res.status(200).json(messages);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
+    res.status(201).json({ message: 'Message sent successfully', data: message });
+  } catch (err) {
+    res.status(500).json({ message: 'Internal Server Error', error: err });
+  }
+};
+
+exports.getMessagesForRecipient = async (req, res) => {
+  try {
+    const { recipientId } = req.params;
+    const messages = await Message.find({ recipient: recipientId }).populate('sender');
+
+    res.status(200).json({ data: messages });
+  } catch (err) {
+    res.status(500).json({ message: 'Internal Server Error', error: err });
+  }
+};

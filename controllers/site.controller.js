@@ -31,7 +31,7 @@ function generateRandomPassword(length) {
   return password;
 }
 
-const register = async (req, res, next) => {
+const register = async (req, res, next , io) => {
   try {
     const { email, password, role_id } = req.body;
 
@@ -96,6 +96,7 @@ const register = async (req, res, next) => {
     newAccount.username = username;
 
     await newAccount.save();
+    io.emit('newAccount',newAccount)
 
     sendEmail(
       email,

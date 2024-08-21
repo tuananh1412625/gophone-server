@@ -1,11 +1,17 @@
-var db = require("../config/ConnectDB");
+// models/message.js
+const db = require("../config/ConnectDB");
 
-const messageSchema = new db.mongoose.Schema({
-  account: { type: String, required: true },
-  message: { type: String, required: true },
-  recipient: { type: String, required: true }, // Thêm trường recipient
-  timestamp: { type: Date, default: Date.now }
-});
+const messageSchema = new db.mongoose.Schema(
+  {
+    sender: { type: db.mongoose.Schema.Types.ObjectId, ref: 'account', required: true },
+    recipient: { type: db.mongoose.Schema.Types.ObjectId, ref: 'account', required: true },
+    content: { type: String, required: true },
+    isRead: { type: Boolean, default: false },
+  },
+  {
+    timestamps: true,
+  }
+);
 
-let message = db.mongoose.model("message", messageSchema);
-module.exports = { message };
+const Message = db.mongoose.model('Message', messageSchema);
+module.exports = Message;

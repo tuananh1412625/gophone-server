@@ -10,7 +10,7 @@ const orderSchema = new db.mongoose.Schema(
         discount_value: { type: Number},
       },
     ],
-    total_price: { type: Number }, //tổng tiền tất cả mặt hàng
+    total_price: { type: Number },
     status: {
       type: String,
       enum: ["Chờ xác nhận", "Chờ giao hàng","Đang giao hàng", "Đã giao hàng", "Đã hủy"],
@@ -21,7 +21,7 @@ const orderSchema = new db.mongoose.Schema(
       ref: "info",  
       required: true,
     },
-    payment_status: { type: Boolean }, // false = chưa thanh toán
+    payment_status: { type: Boolean },
 
   },
   {

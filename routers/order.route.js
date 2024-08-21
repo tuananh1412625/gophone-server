@@ -15,7 +15,7 @@ router.put(
 
 
 
-router.get("/", middleware.checkToken, controller.getOrdersByUserId);
+router.get("/:user_id", middleware.checkToken, controller.getOrdersByUserId);
 router.get("/orders", middleware.checkToken, controller.getAllOrder);
 router.get(
   "/detail-order/:orderId",
